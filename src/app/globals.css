@@ -1,26 +1,160 @@
 @import "tailwindcss";
 
+/* Dark mode is opt-in: the `dark` class on <html>, set by the theme toggle. Light is the default. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5f6fa;
+  --surface: #ffffff;
+  --surface-muted: #f1f3f8;
+  --surface-hover: #eceff6;
+  --line: #e4e7ef;
+  --line-strong: #d3d8e4;
+  --fg: #0f172a;
+  --fg-soft: #334155;
+  --muted: #64748b;
+  --subtle: #94a3b8;
+
+  --primary: #5b4ff5;
+  --primary-hover: #4a3ee0;
+  --primary-fg: #5145e5;
+  --primary-soft: #efedff;
+
+  --success: #059669;
+  --success-soft: #e6f7f0;
+  --warning: #b45309;
+  --warning-soft: #fdf3e1;
+  --danger: #dc2626;
+  --danger-soft: #fdeceb;
+  --info: #2563eb;
+
+  color-scheme: light;
+}
+
+.dark {
+  --background: #0a0c13;
+  --surface: #11141e;
+  --surface-muted: #171b28;
+  --surface-hover: #1d2232;
+  --line: #222838;
+  --line-strong: #303850;
+  --fg: #e9ecf5;
+  --fg-soft: #c4cadb;
+  --muted: #8a93aa;
+  --subtle: #5d667e;
+
+  --primary: #6d63ff;
+  --primary-hover: #8179ff;
+  --primary-fg: #a9a3ff;
+  --primary-soft: rgb(109 99 255 / 0.16);
+
+  --success: #34d399;
+  --success-soft: rgb(52 211 153 / 0.12);
+  --warning: #fbbf24;
+  --warning-soft: rgb(251 191 36 / 0.12);
+  --danger: #f87171;
+  --danger-soft: rgb(248 113 113 / 0.12);
+  --info: #60a5fa;
+
+  color-scheme: dark;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-hover: var(--surface-hover);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-soft: var(--fg-soft);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-soft: var(--primary-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in: fade-in 0.3s ease-out both;
+  --animate-modal-in: modal-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-blob: blob 14s ease-in-out infinite;
+  --animate-gradient: gradient 10s ease infinite;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes modal-in {
+    from { opacity: 0; transform: translateY(10px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  @keyframes blob {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, -50px) scale(1.12); }
+    66% { transform: translate(-30px, 30px) scale(0.92); }
+  }
+  @keyframes gradient {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--fg);
+}
+
+@utility input {
+  @apply w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm text-fg outline-none transition placeholder:text-subtle focus:border-primary focus:ring-2 focus:ring-primary/20;
+}
+
+@utility label {
+  @apply mb-1 block text-xs font-medium text-muted;
+}
+
+@utility card {
+  @apply rounded-xl border border-line bg-surface shadow-sm;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60;
+}
+
+@utility btn-primary {
+  @apply btn bg-primary text-white shadow-sm hover:bg-primary-hover;
+}
+
+@utility btn-secondary {
+  @apply btn border border-line-strong bg-surface text-fg-soft hover:bg-surface-hover;
+}
+
+@utility btn-danger {
+  @apply btn border border-danger/30 bg-surface text-danger hover:bg-danger-soft;
 }
