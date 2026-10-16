@@ -97,7 +97,7 @@ export function MembersTable({
                   status === s ? "bg-surface text-fg shadow-sm" : "text-muted hover:text-fg"
                 }`}
               >
-                {s === "inactive" ? "Not active" : s}
+                {s === "inactive" ? "Deactivated" : s}
                 <span className="ml-1.5 text-xs text-subtle">{counts[s]}</span>
               </button>
             ))}
@@ -146,7 +146,7 @@ export function MembersTable({
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-soft px-2.5 py-0.5 text-xs font-medium text-warning">
-                        <span className="h-1.5 w-1.5 rounded-full bg-warning" /> Not active
+                        <span className="h-1.5 w-1.5 rounded-full bg-warning" /> Deactivated
                       </span>
                     )}
                   </td>
@@ -179,7 +179,7 @@ export function MembersTable({
                           </SubmitButton>
                         ) : (
                           <SubmitButton className="btn-primary px-2.5 py-1.5 text-xs" pendingText="…">
-                            <LuUserCheck className="h-3.5 w-3.5" /> Approve
+                            <LuUserCheck className="h-3.5 w-3.5" /> Activate
                           </SubmitButton>
                         )}
                       </form>

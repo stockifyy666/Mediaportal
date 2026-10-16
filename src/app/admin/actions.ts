@@ -71,7 +71,7 @@ export async function createMember(_prev: FormState, formData: FormData): Promis
   });
   if (error) return { error: error.message };
 
-  // Self sign-ups start inactive; accounts the admin creates are approved straight away.
+  // New profiles start inactive (see schema trigger); accounts the admin creates are active straight away.
   await adminClient.from("profiles").update({ is_active: true }).eq("id", data.user.id);
 
   revalidatePath("/admin", "layout");

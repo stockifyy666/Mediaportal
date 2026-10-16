@@ -67,8 +67,7 @@ async function AdminOverviewContent({ searchParams }: PageProps<"/admin">) {
           <LuCircleAlert className="h-5 w-5 shrink-0" />
           <span className="flex-1">
             <span className="font-semibold">{pendingCount}</span> account
-            {pendingCount === 1 ? " is" : "s are"} not active (new sign-ups waiting for approval or
-            deactivated members).
+            {pendingCount === 1 ? " is" : "s are"} deactivated and can&apos;t sign in.
           </span>
           <span className="inline-flex items-center gap-1 font-medium">
             Review <LuArrowRight className="h-4 w-4" />

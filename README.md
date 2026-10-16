@@ -12,13 +12,13 @@ Daily task platform for the media department. Built with Next.js 16, Tailwind CS
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. Open **SQL Editor**, paste the whole of [`supabase/schema.sql`](supabase/schema.sql) and run it. This creates the tables, triggers and row-level security policies.
-3. **Authentication → Sign In / Providers → Email**: turn **off** "Allow new users to sign up". The app's own `/signup` page still works (it creates accounts on the server), but nobody can bypass it through the Supabase API.
+3. **Authentication → Sign In / Providers → Email**: turn **off** "Allow new users to sign up". There is no sign-up page; only the admin creates accounts.
 
 ### 2. Accounts
 
-- Open `/signup`. **The very first account created becomes the admin** automatically.
-- Everyone who signs up after that is a member whose account stays **not active** until the admin clicks **Approve** on the Team members page.
-- The admin can also create member accounts directly from **Team members**; those are active immediately.
+- There is **no public sign-up**. Create the first account in **Supabase → Authentication → Users → Add user** (tick "Auto Confirm User"). **The very first account becomes the admin** automatically.
+- The admin then creates every member account from **Team members → Add member**; those are active immediately.
+- Deactivated members can't sign in until the admin activates them again.
 
 ### 3. Configure environment variables
 
@@ -38,7 +38,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000/signup and create the admin account first, then add or approve your team from **Team members**.
+Open http://localhost:3000, sign in as the admin, then add your team from **Team members**.
 
 ## Pages
 

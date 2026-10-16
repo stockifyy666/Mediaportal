@@ -9,7 +9,7 @@ import { signIn, type LoginState } from "./actions";
 export function LoginForm() {
   const initialError =
     useSearchParams().get("error") === "inactive"
-      ? "Your account is not active yet. Ask your admin to approve it."
+      ? "Your account is deactivated. Contact your admin."
       : undefined;
   const [state, action, pending] = useActionState<LoginState, FormData>(signIn, {
     error: initialError,

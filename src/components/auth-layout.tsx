@@ -16,7 +16,7 @@ const features = [
   { icon: LuCalendarDays, text: "A full month-by-month record for every member" },
 ];
 
-/** Split-screen shell for login and signup: animated brand panel + form. */
+/** Split-screen shell for the login page: animated brand panel + form. */
 export function AuthLayout({
   title,
   subtitle,

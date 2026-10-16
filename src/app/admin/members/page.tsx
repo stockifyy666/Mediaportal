@@ -18,7 +18,7 @@ async function MembersPageContent({ searchParams }: PageProps<"/admin/members">)
     <div className="animate-fade-up">
       <PageHeader
         title="Team members"
-        subtitle={`${active} active · ${members.length - active} not active`}
+        subtitle={`${active} active · ${members.length - active} deactivated`}
       />
       <MembersTable
         members={members}

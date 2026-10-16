@@ -71,9 +71,10 @@ as $$
 $$;
 
 -- Auto-create a profile whenever an auth user is created.
--- The very first account becomes the active admin. Everyone after that is a
--- member who starts inactive until an admin approves them (accounts the admin
--- creates from the Team members page are activated straight away by the app).
+-- There is no public sign-up: accounts are created by the admin in the app.
+-- The very first account (created in the Supabase dashboard) becomes the active
+-- admin; any other profile starts inactive, and the app activates the accounts
+-- it creates straight away.
 create or replace function public.mt_handle_new_user()
 returns trigger
 language plpgsql
