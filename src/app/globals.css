@@ -131,6 +131,32 @@ body {
   color: var(--fg);
 }
 
+/* Thin, rounded scrollbars that follow the theme. */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--subtle);
+}
+::-webkit-scrollbar-button {
+  display: none;
+}
+/* Browsers without ::-webkit-scrollbar (Firefox) */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+}
+
 @utility input {
   @apply w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm text-fg outline-none transition placeholder:text-subtle focus:border-primary focus:ring-2 focus:ring-primary/20;
 }
