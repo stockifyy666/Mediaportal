@@ -29,6 +29,10 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Never redirect server-action POSTs: the client would receive the login page's
+  // HTML instead of an action result. The action's own auth check redirects properly.
+  if (request.headers.has("next-action")) return response;
+
   const path = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p));
 

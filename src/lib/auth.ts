@@ -11,11 +11,14 @@ export const getCurrentProfile = cache(async (): Promise<Profile> => {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single<Profile>();
+    .maybeSingle<Profile>();
+
+  // A failed lookup (network, Supabase hiccup) must not sign the user out.
+  if (error) throw new Error(`Could not load your profile: ${error.message}`);
 
   if (!profile || !profile.is_active) {
     await supabase.auth.signOut();
