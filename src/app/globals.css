@@ -85,9 +85,9 @@
   --color-danger-soft: var(--danger-soft);
   --color-info: var(--info);
 
-  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   --animate-fade-in: fade-in 0.3s ease-out both;
-  --animate-modal-in: modal-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-modal-in: modal-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   --animate-float: float 6s ease-in-out infinite;
   --animate-blob: blob 14s ease-in-out infinite;
   --animate-gradient: gradient 10s ease infinite;

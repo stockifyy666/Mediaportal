@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   LuCalendar,
   LuCircleCheck,
@@ -26,15 +27,17 @@ export function AssignTaskButton({ members, defaultDate }: { members: Profile[];
         <LuPlus className="h-4 w-4" /> Assign task
       </button>
 
-      {flash && (
+      {flash &&
+        createPortal(
         <div className="fixed bottom-5 right-5 z-[70] flex max-w-sm animate-fade-up items-center gap-2 rounded-xl border border-success/30 bg-surface px-4 py-3 text-sm text-success shadow-xl">
           <LuCircleCheck className="h-5 w-5 shrink-0" />
           <span className="flex-1">{flash}</span>
           <button onClick={() => setFlash("")} className="rounded p-0.5 hover:opacity-70" aria-label="Dismiss">
             <LuX className="h-4 w-4" />
           </button>
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
 
       <Modal
         open={open}

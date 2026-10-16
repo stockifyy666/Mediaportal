@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import type { IconType } from "react-icons";
 import { LuX } from "react-icons/lu";
 
@@ -36,7 +37,8 @@ export function Modal({
 
   if (!open) return null;
 
-  return (
+  // Portal to <body> so no transformed/animated ancestor can trap the fixed overlay.
+  return createPortal(
     <div className="fixed inset-0 z-[60] flex items-end justify-center p-0 sm:items-center sm:p-4">
       <div
         className="absolute inset-0 animate-fade-in bg-black/50 backdrop-blur-sm"
@@ -70,6 +72,7 @@ export function Modal({
         </div>
         <div className="px-5 py-5">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
