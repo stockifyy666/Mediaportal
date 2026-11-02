@@ -1,5 +1,14 @@
 import type { IconType } from "react-icons";
-import { LuBan, LuCircleCheck, LuCircleDashed, LuFlag, LuHistory, LuTimer } from "react-icons/lu";
+import {
+  LuBan,
+  LuCalendarClock,
+  LuCircleAlert,
+  LuCircleCheck,
+  LuCircleDashed,
+  LuFlag,
+  LuHistory,
+  LuTimer,
+} from "react-icons/lu";
 import type { Task, TaskPriority, TaskStatus } from "@/lib/types";
 
 const statusStyles: Record<TaskStatus, { cls: string; label: string; Icon: IconType }> = {
@@ -48,6 +57,45 @@ export function CarriedTag({ task }: { task: Pick<Task, "carried_days" | "origin
     <span className="inline-flex items-center gap-1 rounded-full bg-warning-soft px-2 py-0.5 text-[11px] font-medium text-warning">
       <LuHistory className="h-3 w-3" aria-hidden="true" />
       Carried from {shortDate(task.original_date)} · {task.carried_days} day{task.carried_days === 1 ? "" : "s"}
+    </span>
+  );
+}
+
+type DueFields = Pick<Task, "due_date" | "status">;
+
+/** Overdue = deadline has passed and the task still isn't completed. */
+export function isOverdue(task: DueFields, today: string): boolean {
+  return !!task.due_date && task.status !== "completed" && task.due_date < today;
+}
+
+/** Red highlight for an overdue task's container; empty string otherwise. */
+export function overdueClass(task: DueFields, today: string): string {
+  return isOverdue(task, today) ? "border-danger/50 bg-danger-soft ring-1 ring-danger/30" : "";
+}
+
+/** Deadline tag: red when overdue, amber on the day, grey before. Hidden once completed. */
+export function DueTag({ task, today }: { task: DueFields; today: string }) {
+  if (!task.due_date || task.status === "completed") return null;
+  if (task.due_date < today) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-danger px-2 py-0.5 text-[11px] font-semibold text-white">
+        <LuCircleAlert className="h-3 w-3" aria-hidden="true" />
+        Overdue · was due {shortDate(task.due_date)}
+      </span>
+    );
+  }
+  if (task.due_date === today) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-warning-soft px-2 py-0.5 text-[11px] font-semibold text-warning">
+        <LuCalendarClock className="h-3 w-3" aria-hidden="true" />
+        Due today
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-[11px] font-medium text-fg-soft">
+      <LuCalendarClock className="h-3 w-3" aria-hidden="true" />
+      Due {shortDate(task.due_date)}
     </span>
   );
 }

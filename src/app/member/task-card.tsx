@@ -2,21 +2,22 @@
 
 import { useActionState } from "react";
 import { LuCircleCheck, LuSave } from "react-icons/lu";
-import { CarriedTag, PriorityTag, StatusBadge } from "@/components/badges";
+import { CarriedTag, DueTag, PriorityTag, StatusBadge, overdueClass } from "@/components/badges";
 import { STATUSES, type Task } from "@/lib/types";
 import { updateTask, type FormState } from "./actions";
 
-export function TaskCard({ task }: { task: Task }) {
+export function TaskCard({ task, today }: { task: Task; today: string }) {
   const [state, action, pending] = useActionState<FormState, FormData>(updateTask, {});
 
   return (
-    <div className="card p-4 transition hover:shadow-md">
+    <div className={`card p-4 transition hover:shadow-md ${overdueClass(task, today)}`}>
       <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-semibold">{task.title}</h3>
             <PriorityTag priority={task.priority} />
             <CarriedTag task={task} />
+            <DueTag task={task} today={today} />
           </div>
         </div>
         <StatusBadge status={task.status} />

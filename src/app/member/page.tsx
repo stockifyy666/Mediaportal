@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 import { Suspense } from "react";
 import {
+  LuCircleAlert,
   LuCircleCheck,
   LuClipboardList,
   LuHistory,
@@ -8,6 +9,7 @@ import {
   LuNotebookPen,
   LuTimer,
 } from "react-icons/lu";
+import { isOverdue } from "@/components/badges";
 import { StatCard } from "@/components/stat-card";
 import { PageLoading } from "@/components/page-loading";
 import { PageHeader } from "@/components/app-shell";
@@ -44,6 +46,7 @@ async function MemberTodayContent() {
   const done = tasks.filter((t) => t.status === "completed").length;
   const active = tasks.filter((t) => t.status === "in_progress").length;
   const carried = tasks.filter((t) => t.carried_days > 0).length;
+  const overdue = tasks.filter((t) => isOverdue(t, date)).length;
   const firstName = me.full_name.split(" ")[0] || "there";
 
   return (
@@ -63,6 +66,13 @@ async function MemberTodayContent() {
             <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted">
               <LuClipboardList className="h-4 w-4" /> Today&apos;s tasks
             </h2>
+            {overdue > 0 && (
+              <p className="mb-3 flex items-center gap-2 rounded-lg bg-danger px-3 py-2 text-xs font-medium text-white">
+                <LuCircleAlert className="h-4 w-4 shrink-0" />
+                {overdue} task{overdue === 1 ? " is" : "s are"} past the deadline. Please finish{" "}
+                {overdue === 1 ? "it" : "them"} first.
+              </p>
+            )}
             {carried > 0 && (
               <p className="mb-3 flex items-center gap-2 rounded-lg bg-warning-soft px-3 py-2 text-xs text-warning">
                 <LuHistory className="h-4 w-4 shrink-0" />
@@ -77,7 +87,7 @@ async function MemberTodayContent() {
             ) : (
               <div className="space-y-3">
                 {tasks.map((t) => (
-                  <TaskCard key={t.id} task={t} />
+                  <TaskCard key={t.id} task={t} today={date} />
                 ))}
               </div>
             )}

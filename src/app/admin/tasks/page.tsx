@@ -5,7 +5,7 @@ import { PageLoading } from "@/components/page-loading";
 import Link from "next/link";
 import { PageHeader } from "@/components/app-shell";
 import { requireAdmin } from "@/lib/auth";
-import { CarriedTag, PriorityTag, StatusBadge } from "@/components/badges";
+import { CarriedTag, DueTag, PriorityTag, StatusBadge, isOverdue, overdueClass } from "@/components/badges";
 import { SubmitButton } from "@/components/submit-button";
 import { formatDate, isValidDate, today } from "@/lib/dates";
 import { getMembers } from "@/lib/members";
@@ -18,7 +18,8 @@ async function AdminTasksPageContent({ searchParams }: PageProps<"/admin/tasks">
   await connection();
   await requireAdmin();
   const { date: dateParam, member } = await searchParams;
-  const date = typeof dateParam === "string" && isValidDate(dateParam) ? dateParam : today();
+  const now = today();
+  const date = typeof dateParam === "string" && isValidDate(dateParam) ? dateParam : now;
   const memberFilter = typeof member === "string" ? member : "";
 
   const supabase = await createClient();
@@ -80,13 +81,19 @@ async function AdminTasksPageContent({ searchParams }: PageProps<"/admin/tasks">
             ) : (
               <ul className="divide-y divide-line">
                 {tasks.map((t) => (
-                  <li key={t.id} className="flex items-start gap-4 p-4 transition hover:bg-surface-muted/60">
+                  <li
+                    key={t.id}
+                    className={`flex items-start gap-4 border-l-4 p-4 transition hover:bg-surface-muted/60 ${
+                      isOverdue(t, now) ? `border-l-danger ${overdueClass(t, now)}` : "border-l-transparent"
+                    }`}
+                  >
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">{t.title}</span>
                         <StatusBadge status={t.status} />
                         <PriorityTag priority={t.priority} />
                         <CarriedTag task={t} />
+                        <DueTag task={t} today={now} />
                       </div>
                       <div className="mt-1 flex items-center gap-1 text-xs text-muted">
                         <LuUser className="h-3.5 w-3.5" /> Assigned to{" "}

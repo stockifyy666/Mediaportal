@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   LuCalendar,
+  LuCalendarClock,
   LuCircleCheck,
   LuClipboardList,
   LuFlag,
@@ -70,6 +71,7 @@ function AssignTaskForm({
   onSuccess: (message: string) => void;
 }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [startDate, setStartDate] = useState(defaultDate);
   const [state, action, pending] = useActionState<FormState, FormData>(async (prev, formData) => {
     const result = await createTasks(prev, formData);
     if (result.ok) onSuccess(result.ok);
@@ -112,12 +114,26 @@ function AssignTaskForm({
           placeholder="Instructions, links, deadlines…"
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-3">
         <div>
           <label className="label flex items-center gap-1.5" htmlFor="task_date">
             <LuCalendar className="h-3.5 w-3.5" /> Date
           </label>
-          <input id="task_date" name="task_date" type="date" required defaultValue={defaultDate} className="input" />
+          <input
+            id="task_date"
+            name="task_date"
+            type="date"
+            required
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="input"
+          />
+        </div>
+        <div>
+          <label className="label flex items-center gap-1.5" htmlFor="due_date">
+            <LuCalendarClock className="h-3.5 w-3.5" /> Deadline <span className="text-subtle">(optional)</span>
+          </label>
+          <input id="due_date" name="due_date" type="date" min={startDate} className="input" />
         </div>
         <div>
           <label className="label flex items-center gap-1.5" htmlFor="priority">

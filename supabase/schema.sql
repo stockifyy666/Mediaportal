@@ -40,6 +40,7 @@ create table if not exists public.tasks (
   original_date  date,
   carried_days   integer not null default 0,
   rolls_over     boolean not null default true,
+  due_date       date,
   completed_at   timestamptz,
   created_at     timestamptz not null default now(),
   updated_at     timestamptz not null default now()
@@ -127,6 +128,7 @@ begin
     or new.original_date  is distinct from old.original_date
     or new.carried_days   is distinct from old.carried_days
     or new.rolls_over     is distinct from old.rolls_over
+    or new.due_date       is distinct from old.due_date
     or new.priority       is distinct from old.priority
     or new.created_at     is distinct from old.created_at then
       raise exception 'Members can only update status and comment';
@@ -162,8 +164,10 @@ create trigger mt_daily_reports_touch
   for each row execute function public.mt_touch_updated_at();
 
 -- ---------- Task rollover ----------
--- Move every unfinished task dated before p_today onto p_today.
--- Returns how many tasks moved. Only the server (service role) may call it.
+-- Move every unfinished task dated before p_today onto p_today. Only the
+-- server (service role) may call it. Rollover skips a task when the same member already has a task with the
+-- same title (ignoring case and extra spaces) on the target day — e.g. an
+-- admin re-assigned it by hand. The skipped copy stays where it is.
 create or replace function public.mt_rollover_tasks(p_today date)
 returns integer
 language plpgsql
@@ -174,6 +178,35 @@ declare
   moved integer;
 begin
   perform set_config('mt.rollover', 'on', true);
+
+  -- Leave behind any task whose title is already on the member's list for p_today,
+  -- and all but the newest of several identical unfinished tasks.
+  update public.tasks t
+     set rolls_over = false
+   where t.task_date < p_today
+     and t.status <> 'completed'
+     and t.rolls_over
+     and (
+       exists (
+         select 1 from public.tasks x
+          where x.assigned_to = t.assigned_to
+            and x.task_date = p_today
+            and lower(regexp_replace(trim(x.title), '\s+', ' ', 'g'))
+              = lower(regexp_replace(trim(t.title), '\s+', ' ', 'g'))
+       )
+       or exists (
+         select 1 from public.tasks y
+          where y.assigned_to = t.assigned_to
+            and y.id <> t.id
+            and y.task_date < p_today
+            and y.status <> 'completed'
+            and y.rolls_over
+            and lower(regexp_replace(trim(y.title), '\s+', ' ', 'g'))
+              = lower(regexp_replace(trim(t.title), '\s+', ' ', 'g'))
+            and (y.task_date, y.created_at) > (t.task_date, t.created_at)
+       )
+     );
+
   update public.tasks
      set original_date = coalesce(original_date, task_date),
          carried_days  = carried_days + (p_today - task_date),
@@ -182,6 +215,7 @@ begin
      and status <> 'completed'
      and rolls_over;
   get diagnostics moved = row_count;
+
   perform set_config('mt.rollover', 'off', true);
   return moved;
 end;

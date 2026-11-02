@@ -10,7 +10,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { formatDay, formatMonth, monthRange, today } from "@/lib/dates";
 import type { DailyReport, Task } from "@/lib/types";
-import { CarriedTag, PriorityTag, StatusBadge } from "./badges";
+import { CarriedTag, DueTag, PriorityTag, StatusBadge, overdueClass } from "./badges";
 import { StatCard } from "./stat-card";
 
 /** A member's full day-by-day record for one month: tasks, statuses and closing notes. */
@@ -91,7 +91,10 @@ export async function MonthlyRecord({ userId, month }: { userId: string; month: 
                   ) : (
                     <ul className="space-y-2">
                       {dayTasks.map((t) => (
-                        <li key={t.id} className="text-sm">
+                        <li
+                          key={t.id}
+                          className={`-mx-2 rounded-lg border border-transparent px-2 py-1 text-sm ${overdueClass(t, todayStr)}`}
+                        >
                           <div className="flex items-start justify-between gap-2">
                             <span className="font-medium">{t.title}</span>
                             <StatusBadge status={t.status} />
@@ -99,6 +102,7 @@ export async function MonthlyRecord({ userId, month }: { userId: string; month: 
                           <div className="mt-1 flex flex-wrap items-center gap-2">
                             <PriorityTag priority={t.priority} />
                             <CarriedTag task={t} />
+                            <DueTag task={t} today={todayStr} />
                           </div>
                           {t.member_comment && (
                             <p className="mt-0.5 flex items-start gap-1.5 text-xs text-muted">

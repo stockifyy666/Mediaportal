@@ -16,11 +16,14 @@ export async function createTasks(_prev: FormState, formData: FormData): Promise
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const taskDate = String(formData.get("task_date") ?? "");
+  const dueDate = String(formData.get("due_date") ?? "").trim();
   const priority = String(formData.get("priority") ?? "medium") as TaskPriority;
   const memberIds = formData.getAll("assigned_to").map(String).filter(Boolean);
 
   if (!title) return { error: "Task title is required." };
   if (!isValidDate(taskDate)) return { error: "Pick a valid date." };
+  if (dueDate && !isValidDate(dueDate)) return { error: "Pick a valid deadline." };
+  if (dueDate && dueDate < taskDate) return { error: "The deadline can't be before the task date." };
   if (!PRIORITY_VALUES.includes(priority)) return { error: "Invalid priority." };
   if (memberIds.length === 0) return { error: "Select at least one team member." };
 
@@ -31,6 +34,7 @@ export async function createTasks(_prev: FormState, formData: FormData): Promise
       description,
       task_date: taskDate,
       original_date: taskDate,
+      due_date: dueDate || null,
       priority,
       assigned_to: id,
       assigned_by: admin.id,
