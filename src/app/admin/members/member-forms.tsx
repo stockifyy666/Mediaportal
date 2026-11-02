@@ -1,9 +1,19 @@
 "use client";
 
-import { useActionState } from "react";
-import { LuBriefcase, LuKeyRound, LuLock, LuMail, LuSave, LuUser, LuUserPlus } from "react-icons/lu";
+import { useActionState, useState } from "react";
+import {
+  LuBriefcase,
+  LuKeyRound,
+  LuLock,
+  LuMail,
+  LuSave,
+  LuTrash2,
+  LuTriangleAlert,
+  LuUser,
+  LuUserPlus,
+} from "react-icons/lu";
 import { IconInput } from "@/components/icon-input";
-import { createMember, resetMemberPassword, type FormState } from "../actions";
+import { createMember, deleteMember, resetMemberPassword, type FormState } from "../actions";
 
 export function CreateMemberForm({ onSuccess }: { onSuccess: (message: string) => void }) {
   const [state, action, pending] = useActionState<FormState, FormData>(async (prev, formData) => {
@@ -102,6 +112,71 @@ export function ResetPasswordForm({
         <LuSave className="h-4 w-4" />
         {pending ? "Saving…" : "Update password"}
       </button>
+    </form>
+  );
+}
+
+export function DeleteMemberForm({
+  memberId,
+  name,
+  onCancel,
+  onSuccess,
+}: {
+  memberId: string;
+  name: string;
+  onCancel: () => void;
+  onSuccess: (message: string) => void;
+}) {
+  const [confirm, setConfirm] = useState("");
+  const [state, action, pending] = useActionState<FormState, FormData>(async (prev, formData) => {
+    const result = await deleteMember(prev, formData);
+    if (result.ok) onSuccess(result.ok);
+    return result;
+  }, {});
+  const confirmed = confirm.trim().toLowerCase() === "delete";
+
+  return (
+    <form action={action} className="space-y-4">
+      <input type="hidden" name="id" value={memberId} />
+      <div className="flex gap-3 rounded-lg border border-danger/30 bg-danger-soft p-3 text-sm text-danger">
+        <LuTriangleAlert className="mt-0.5 h-5 w-5 shrink-0" />
+        <div className="space-y-1">
+          <p className="font-medium">This permanently deletes {name}.</p>
+          <p className="text-danger/90">
+            Their login, all their tasks and every daily closing note are removed, and their monthly
+            records will be gone. This can&apos;t be undone. To keep their history, deactivate them instead.
+          </p>
+        </div>
+      </div>
+      <div>
+        <label className="label" htmlFor="confirm-delete">
+          Type <span className="font-semibold text-fg">delete</span> to confirm
+        </label>
+        <input
+          id="confirm-delete"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          autoComplete="off"
+          autoFocus
+          className="input"
+        />
+      </div>
+      {state.error && (
+        <p className="rounded-lg bg-danger-soft px-3 py-2 text-sm text-danger">{state.error}</p>
+      )}
+      <div className="flex gap-2">
+        <button type="button" onClick={onCancel} className="btn-secondary flex-1">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={!confirmed || pending}
+          className="btn flex-1 bg-danger text-white hover:opacity-90"
+        >
+          <LuTrash2 className="h-4 w-4" />
+          {pending ? "Deleting…" : "Delete member"}
+        </button>
+      </div>
     </form>
   );
 }

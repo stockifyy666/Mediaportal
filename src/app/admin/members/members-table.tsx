@@ -7,6 +7,7 @@ import {
   LuCircleCheck,
   LuKeyRound,
   LuSearch,
+  LuTrash2,
   LuUserCheck,
   LuUserPlus,
   LuUsers,
@@ -17,7 +18,7 @@ import { Modal } from "@/components/modal";
 import { SubmitButton } from "@/components/submit-button";
 import type { Profile } from "@/lib/types";
 import { setMemberActive } from "../actions";
-import { CreateMemberForm, ResetPasswordForm } from "./member-forms";
+import { CreateMemberForm, DeleteMemberForm, ResetPasswordForm } from "./member-forms";
 
 type StatusFilter = "all" | "active" | "inactive";
 
@@ -42,6 +43,7 @@ export function MembersTable({
   const [status, setStatus] = useState<StatusFilter>(initialStatus);
   const [addOpen, setAddOpen] = useState(false);
   const [resetFor, setResetFor] = useState<Profile | null>(null);
+  const [deleteFor, setDeleteFor] = useState<Profile | null>(null);
   const [flash, setFlash] = useState("");
 
   const counts = {
@@ -183,6 +185,15 @@ export function MembersTable({
                           </SubmitButton>
                         )}
                       </form>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteFor(m)}
+                        className="rounded-lg p-2 text-muted transition hover:bg-danger-soft hover:text-danger"
+                        title="Delete member"
+                        aria-label={`Delete ${m.full_name}`}
+                      >
+                        <LuTrash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -228,6 +239,27 @@ export function MembersTable({
             onSuccess={(msg) => {
               setFlash(`${msg} (${resetFor.full_name || resetFor.email})`);
               setResetFor(null);
+            }}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        open={!!deleteFor}
+        onClose={() => setDeleteFor(null)}
+        title="Delete member"
+        description={deleteFor ? deleteFor.email : undefined}
+        icon={LuTrash2}
+      >
+        {deleteFor && (
+          <DeleteMemberForm
+            key={deleteFor.id}
+            memberId={deleteFor.id}
+            name={deleteFor.full_name || deleteFor.email}
+            onCancel={() => setDeleteFor(null)}
+            onSuccess={(msg) => {
+              setFlash(msg);
+              setDeleteFor(null);
             }}
           />
         )}

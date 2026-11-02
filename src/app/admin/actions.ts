@@ -107,3 +107,26 @@ export async function resetMemberPassword(_prev: FormState, formData: FormData):
   if (error) return { error: error.message };
   return { ok: "Password updated." };
 }
+
+export async function deleteMember(_prev: FormState, formData: FormData): Promise<FormState> {
+  const admin = await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { error: "Missing member." };
+  if (id === admin.id) return { error: "You can't delete your own account." };
+
+  const adminClient = createAdminClient();
+  const { data: target } = await adminClient
+    .from("profiles")
+    .select("role, full_name, email")
+    .eq("id", id)
+    .maybeSingle<{ role: string; full_name: string; email: string }>();
+  if (!target) return { error: "Member not found." };
+  if (target.role === "admin") return { error: "Admin accounts can't be deleted here." };
+
+  // Removes the login; the profile, their tasks and closing notes cascade with it.
+  const { error } = await adminClient.auth.admin.deleteUser(id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin", "layout");
+  return { ok: `${target.full_name || target.email} was deleted.` };
+}
