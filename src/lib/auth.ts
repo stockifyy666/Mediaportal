@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { rolloverTasks } from "@/lib/rollover";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types";
 
@@ -24,6 +25,9 @@ export const getCurrentProfile = cache(async (): Promise<Profile> => {
     await supabase.auth.signOut();
     redirect("/login?error=inactive");
   }
+
+  // Unfinished tasks from earlier days move onto today before any page reads them.
+  await rolloverTasks();
   return profile;
 });
 

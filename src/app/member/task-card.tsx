@@ -1,12 +1,12 @@
 "use client";
 
 import { useActionState } from "react";
-import { LuCircleCheck, LuHistory, LuSave } from "react-icons/lu";
-import { PriorityTag, StatusBadge } from "@/components/badges";
+import { LuCircleCheck, LuSave } from "react-icons/lu";
+import { CarriedTag, PriorityTag, StatusBadge } from "@/components/badges";
 import { STATUSES, type Task } from "@/lib/types";
 import { updateTask, type FormState } from "./actions";
 
-export function TaskCard({ task, overdueLabel }: { task: Task; overdueLabel?: string }) {
+export function TaskCard({ task }: { task: Task }) {
   const [state, action, pending] = useActionState<FormState, FormData>(updateTask, {});
 
   return (
@@ -16,12 +16,8 @@ export function TaskCard({ task, overdueLabel }: { task: Task; overdueLabel?: st
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-semibold">{task.title}</h3>
             <PriorityTag priority={task.priority} />
+            <CarriedTag task={task} />
           </div>
-          {overdueLabel && (
-            <div className="mt-1 flex items-center gap-1 text-xs font-medium text-warning">
-              <LuHistory className="h-3.5 w-3.5" /> Carried over from {overdueLabel}
-            </div>
-          )}
         </div>
         <StatusBadge status={task.status} />
       </div>

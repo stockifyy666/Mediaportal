@@ -13,7 +13,7 @@ import {
   LuUserPlus,
 } from "react-icons/lu";
 import { PageHeader } from "@/components/app-shell";
-import { PriorityTag, StatusBadge } from "@/components/badges";
+import { CarriedTag, PriorityTag, StatusBadge } from "@/components/badges";
 import { PageLoading } from "@/components/page-loading";
 import { StatCard } from "@/components/stat-card";
 import { requireAdmin } from "@/lib/auth";
@@ -135,7 +135,10 @@ async function AdminOverviewContent({ searchParams }: PageProps<"/admin">) {
                           <span className="font-medium">{t.title}</span>
                           <StatusBadge status={t.status} />
                         </div>
-                        <PriorityTag priority={t.priority} />
+                        <div className="mt-1 flex flex-wrap items-center gap-2">
+                          <PriorityTag priority={t.priority} />
+                          <CarriedTag task={t} />
+                        </div>
                         {t.member_comment && (
                           <p className="mt-1 flex items-start gap-1.5 text-xs text-muted">
                             <LuMessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0" />

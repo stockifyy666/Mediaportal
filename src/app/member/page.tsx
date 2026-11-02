@@ -24,22 +24,13 @@ async function MemberTodayContent() {
   const date = today();
   const supabase = await createClient();
 
-  const [{ data: todayTasks }, { data: carried }, { data: report }] = await Promise.all([
+  const [{ data: todayTasks }, { data: report }] = await Promise.all([
     supabase
       .from("tasks")
       .select("*")
       .eq("assigned_to", me.id)
       .eq("task_date", date)
       .order("created_at")
-      .returns<Task[]>(),
-    // Unfinished tasks from earlier days stay on the list until completed.
-    supabase
-      .from("tasks")
-      .select("*")
-      .eq("assigned_to", me.id)
-      .lt("task_date", date)
-      .neq("status", "completed")
-      .order("task_date")
       .returns<Task[]>(),
     supabase
       .from("daily_reports")
@@ -52,6 +43,7 @@ async function MemberTodayContent() {
   const tasks = todayTasks ?? [];
   const done = tasks.filter((t) => t.status === "completed").length;
   const active = tasks.filter((t) => t.status === "in_progress").length;
+  const carried = tasks.filter((t) => t.carried_days > 0).length;
   const firstName = me.full_name.split(" ")[0] || "there";
 
   return (
@@ -62,7 +54,7 @@ async function MemberTodayContent() {
         <StatCard label="Today's tasks" value={tasks.length} icon={LuClipboardList} tone="primary" />
         <StatCard label="Completed" value={`${done}/${tasks.length}`} icon={LuCircleCheck} tone="success" />
         <StatCard label="In progress" value={active} icon={LuTimer} tone="warning" />
-        <StatCard label="Carried over" value={carried?.length ?? 0} icon={LuHistory} tone="danger" />
+        <StatCard label="Carried over" value={carried} icon={LuHistory} tone="danger" />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
@@ -71,6 +63,12 @@ async function MemberTodayContent() {
             <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted">
               <LuClipboardList className="h-4 w-4" /> Today&apos;s tasks
             </h2>
+            {carried > 0 && (
+              <p className="mb-3 flex items-center gap-2 rounded-lg bg-warning-soft px-3 py-2 text-xs text-warning">
+                <LuHistory className="h-4 w-4 shrink-0" />
+                {carried} unfinished task{carried === 1 ? " was" : "s were"} moved here from earlier days.
+              </p>
+            )}
             {tasks.length === 0 ? (
               <div className="card flex flex-col items-center gap-2 p-10 text-center text-sm text-muted">
                 <LuInbox className="h-8 w-8 text-subtle" />
@@ -85,18 +83,6 @@ async function MemberTodayContent() {
             )}
           </section>
 
-          {!!carried?.length && (
-            <section>
-              <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-warning">
-                <LuHistory className="h-4 w-4" /> Unfinished from earlier days
-              </h2>
-              <div className="space-y-3">
-                {carried.map((t) => (
-                  <TaskCard key={t.id} task={t} overdueLabel={formatDate(t.task_date)} />
-                ))}
-              </div>
-            </section>
-          )}
         </div>
 
         <aside className="lg:sticky lg:top-8 lg:self-start">

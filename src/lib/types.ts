@@ -22,6 +22,9 @@ export type Task = {
   priority: TaskPriority;
   status: TaskStatus;
   member_comment: string;
+  /** Date the task was first scheduled; differs from task_date once carried over. */
+  original_date: string | null;
+  carried_days: number;
   completed_at: string | null;
   created_at: string;
   updated_at: string;

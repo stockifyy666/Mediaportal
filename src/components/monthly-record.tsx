@@ -10,7 +10,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { formatDay, formatMonth, monthRange, today } from "@/lib/dates";
 import type { DailyReport, Task } from "@/lib/types";
-import { PriorityTag, StatusBadge } from "./badges";
+import { CarriedTag, PriorityTag, StatusBadge } from "./badges";
 import { StatCard } from "./stat-card";
 
 /** A member's full day-by-day record for one month: tasks, statuses and closing notes. */
@@ -96,7 +96,10 @@ export async function MonthlyRecord({ userId, month }: { userId: string; month: 
                             <span className="font-medium">{t.title}</span>
                             <StatusBadge status={t.status} />
                           </div>
-                          <PriorityTag priority={t.priority} />
+                          <div className="mt-1 flex flex-wrap items-center gap-2">
+                            <PriorityTag priority={t.priority} />
+                            <CarriedTag task={t} />
+                          </div>
                           {t.member_comment && (
                             <p className="mt-0.5 flex items-start gap-1.5 text-xs text-muted">
                               <LuMessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0" />

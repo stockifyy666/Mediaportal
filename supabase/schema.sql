@@ -37,6 +37,9 @@ create table if not exists public.tasks (
   priority       public.mt_task_priority not null default 'medium',
   status         public.mt_task_status not null default 'pending',
   member_comment text not null default '',
+  original_date  date,
+  carried_days   integer not null default 0,
+  rolls_over     boolean not null default true,
   completed_at   timestamptz,
   created_at     timestamptz not null default now(),
   updated_at     timestamptz not null default now()
@@ -107,6 +110,7 @@ create trigger mt_on_auth_user_created
   for each row execute function public.mt_handle_new_user();
 
 -- Members may only change status + comment on their own tasks.
+-- The rollover function sets mt.rollover so it may move dates.
 create or replace function public.mt_guard_task_update()
 returns trigger
 language plpgsql
@@ -114,12 +118,15 @@ security definer
 set search_path = public
 as $$
 begin
-  if not public.mt_is_admin() then
+  if not public.mt_is_admin() and coalesce(current_setting('mt.rollover', true), '') <> 'on' then
     if new.title          is distinct from old.title
     or new.description    is distinct from old.description
     or new.assigned_to    is distinct from old.assigned_to
     or new.assigned_by    is distinct from old.assigned_by
     or new.task_date      is distinct from old.task_date
+    or new.original_date  is distinct from old.original_date
+    or new.carried_days   is distinct from old.carried_days
+    or new.rolls_over     is distinct from old.rolls_over
     or new.priority       is distinct from old.priority
     or new.created_at     is distinct from old.created_at then
       raise exception 'Members can only update status and comment';
@@ -153,6 +160,35 @@ drop trigger if exists mt_daily_reports_touch on public.daily_reports;
 create trigger mt_daily_reports_touch
   before update on public.daily_reports
   for each row execute function public.mt_touch_updated_at();
+
+-- ---------- Task rollover ----------
+-- Move every unfinished task dated before p_today onto p_today.
+-- Returns how many tasks moved. Only the server (service role) may call it.
+create or replace function public.mt_rollover_tasks(p_today date)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  moved integer;
+begin
+  perform set_config('mt.rollover', 'on', true);
+  update public.tasks
+     set original_date = coalesce(original_date, task_date),
+         carried_days  = carried_days + (p_today - task_date),
+         task_date     = p_today
+   where task_date < p_today
+     and status <> 'completed'
+     and rolls_over;
+  get diagnostics moved = row_count;
+  perform set_config('mt.rollover', 'off', true);
+  return moved;
+end;
+$$;
+
+revoke all on function public.mt_rollover_tasks(date) from public, anon, authenticated;
+grant execute on function public.mt_rollover_tasks(date) to service_role;
 
 -- ---------- Row Level Security ----------
 alter table public.profiles      enable row level security;

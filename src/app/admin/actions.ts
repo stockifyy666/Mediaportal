@@ -30,6 +30,7 @@ export async function createTasks(_prev: FormState, formData: FormData): Promise
       title,
       description,
       task_date: taskDate,
+      original_date: taskDate,
       priority,
       assigned_to: id,
       assigned_by: admin.id,

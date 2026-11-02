@@ -5,7 +5,7 @@ import { PageLoading } from "@/components/page-loading";
 import Link from "next/link";
 import { PageHeader } from "@/components/app-shell";
 import { requireAdmin } from "@/lib/auth";
-import { PriorityTag, StatusBadge } from "@/components/badges";
+import { CarriedTag, PriorityTag, StatusBadge } from "@/components/badges";
 import { SubmitButton } from "@/components/submit-button";
 import { formatDate, isValidDate, today } from "@/lib/dates";
 import { getMembers } from "@/lib/members";
@@ -86,6 +86,7 @@ async function AdminTasksPageContent({ searchParams }: PageProps<"/admin/tasks">
                         <span className="font-medium">{t.title}</span>
                         <StatusBadge status={t.status} />
                         <PriorityTag priority={t.priority} />
+                        <CarriedTag task={t} />
                       </div>
                       <div className="mt-1 flex items-center gap-1 text-xs text-muted">
                         <LuUser className="h-3.5 w-3.5" /> Assigned to{" "}
